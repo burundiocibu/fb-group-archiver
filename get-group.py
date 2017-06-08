@@ -42,6 +42,8 @@ parser.add_argument("-i", "--input-file", metavar="fn",
 
 args = parser.parse_args()
 
+fb.debug = args.debug
+
 if args.user_token and args.group_name:
     graph = facebook.GraphAPI(access_token=args.user_token, version='2.9')
 
@@ -55,27 +57,31 @@ if args.user_token and args.group_name:
     group_id = gr['id']
 
     group = dict()
-    group[group_id] = fb.get_object(graph, group_id, args)
+    group[group_id] = fb.get_object(graph, group_id)
 
-    members = group_id+"/members"
-    group[members] = fb.get_object(graph, members, args)
+    members = group_id+"/members?limit=1000"
+    group[members] = fb.get_object(graph, members)
 
-    #todo: check the cursors to see if all the request was retrieved.
-    group[group_id+'/feed'] = fb.get_object(graph, group_id+"/feed?fields=id,from,message,created_time,updated_time,full_picture,reactions,comments{id,from,message,reactions,comments{id,from,message,reactions}}", args)
+    # This is a breadth first querry and then fill in each feed
+    feed = fb.get_object(graph,
+        group_id+"/feed?limit=100?fields=id,from,message,created_time,updated_time")
+    feed = fb.dig_feed(graph, feed)
+    group[group_id+'/feed'] = feed
     
 elif args.input_file:
     with open(args.input_file, "r") as fh:
         group = json.load(fh)
-        
+    for k in group:
+        if k[-4:] == 'feed':
+            feed = group[k]
+            break
+
 else:
     print("No input data specified.")
     sys.exit(-1)
 
-for k in group:
-    if k[-4:] == 'feed':
-        feed = group[k]
 if feed is None:
-    print("No feed found in group.")
+    print("No feed found.")
 
 if args.debug>1:
     print(json.dumps(group, indent=2))
