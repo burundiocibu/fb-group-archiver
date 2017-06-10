@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import facebook
 import json
 import urllib.request
 import requests
@@ -122,6 +121,14 @@ def feed2list(d, l=list(), parent_id='unk'):
     return l
 
 
+def feed2csv():
+    with open(args.csv_file, "w") as fh:
+        csv_fh = csv.writer(fh, quoting=csv.QUOTE_ALL)
+        feed_list = fb.feed2list(feed)
+        csv_fh.writerows(feed_list)
+
+
+
 def get_photos(d, dir='.'):
     if isinstance(d, dict):
         for k,v in d.items():
@@ -156,11 +163,11 @@ def fmt_name(d):
 
 def print_field(d, field, prefix):
     if field in d:
-        print(prefix, field +":", d[field])
+        print(prefix+"**"+field +":**", d[field])
         del d[field]
 
 
-def print_feed(d, depth=0):
+def feed2text(d, depth=0):
     indent=2
     fmt="{: >" + str(depth*indent) + "s}"
     prefix = fmt.format('')

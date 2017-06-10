@@ -21,9 +21,6 @@ parser.add_argument("-d", "--debug", default=0, action="count",
 parser.add_argument("-j", "--json-file", metavar="fn",
     help="Save retrieved group into this file as a JSON encoded data.")
 
-parser.add_argument("-c", "--csv-file", metavar="fn",
-    help="Reduce feed from group and save in this file as csv data.")
-
 parser.add_argument("-u", "--user-token",
     help="Query the group from facebook using the provided user token."
     " This may be generated from the facebook graph API explorer. Make sure"
@@ -95,9 +92,3 @@ if args.pictures_dir:
 if args.json_file:
     with open(args.json_file, "w") as fh:
         json.dump(group, fh)
-
-if args.csv_file:
-    with open(args.csv_file, "w") as fh:
-        csv_fh = csv.writer(fh, quoting=csv.QUOTE_ALL)
-        feed_list = fb.feed2list(feed)
-        csv_fh.writerows(feed_list)

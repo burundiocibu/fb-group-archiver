@@ -35,4 +35,4 @@ if feed is None:
     print("No feed found.")
     os.exit(-1)
 
-fb.print_feed(feed)
+fb.feed2text(feed)
