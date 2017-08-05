@@ -34,6 +34,12 @@ if feed is None:
     print("No feed found.")
     os.exit(-1)
 
+
+def print_field(d, field, prefix):
+    if field in d:
+        print(prefix+"**"+field +":**", d[field])
+        del d[field]
+
 def feed2md(d, media_dir, prefix=''):
     """pandoc -f markdown+hard_line_breaks """
     if isinstance(d, dict):
@@ -43,12 +49,12 @@ def feed2md(d, media_dir, prefix=''):
             del d['from']
         if 'id' in d:
             del d['id']
-        fb.print_field(d, 'created_time', prefix)
-        fb.print_field(d, 'updated_time', prefix)
-        fb.print_field(d, 'message', prefix)
-        fb.print_field(d, 'story', prefix)
-        fb.print_field(d, 'description', prefix)
-        fb.print_field(d, 'title', prefix)
+        print_field(d, 'created_time', prefix)
+        print_field(d, 'updated_time', prefix)
+        print_field(d, 'message', prefix)
+        print_field(d, 'story', prefix)
+        print_field(d, 'description', prefix)
+        print_field(d, 'title', prefix)
         if 'full_picture' in d:
             p = Path(media_dir, fb.url2fn(d['full_picture']))
             if p.suffix in ['.jpg', '.png'] and p.exists():
