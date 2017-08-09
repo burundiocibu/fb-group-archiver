@@ -34,6 +34,9 @@ parser.add_argument(dest="input_file",
 
 args = parser.parse_args()
 
+print("Ignoring actions before this time:", args.start_time)
+print("Ignoring actions after this time:", args.stop_time)
+
 fb.debug = args.debug
 with open(args.input_file, "r") as fh:
     group = json.load(fh)
@@ -79,16 +82,23 @@ comment_only = set(comments.keys()) - set(reactions.keys()) - set(posts.keys())
 def ppct(n,m):
     return "{} ({:2.2f}%)".format(n, 100*n/m)
 
+def pmem(msg, members, ids):
+    print(msg, ppct(len(ids), len(members)))
+    for id in ids:
+        if id in members:
+            print("   ", members[id].encode('utf-8'))
+        else:
+            print("   ", id, ", no longer a member")
+    print("")
+
 print("Members:", len(members))
-print("Members that lurk:", ppct(len(lurkers), len(members)))
-print("")
-print("Members that posted:", ppct(len(posts), len(members)))
-print("Members that commented:", ppct(len(comments), len(members)))
-print("Members that reacted:", ppct(len(reactions), len(members)))
-print("")
-print("Members that only posted:", ppct(len(post_only), len(members)))
-print("Members that only reacted:", ppct(len(react_only), len(members)))
-print("Members that only commented:", ppct(len(comment_only), len(members)))
+pmem("Members that lurked:", members, lurkers)
+pmem("Members that posted:", members, posts)
+pmem("Members that commented:", members, comments)
+pmem("Members that reacted:", members, reactions)
+pmem("Members that only posted:", members, post_only)
+pmem("Members that only reacted:", members, react_only)
+pmem("Members that only commented:", members, comment_only)
 
 post_then_react = set()
 react_then_post = set()
@@ -115,14 +125,11 @@ for id,pt in posts.items():
         else:
             comment_then_react.add(id)
 
-print("")
-print("Members that post then react:", ppct(len(post_then_react), len(members)))
-print("Members that react then post:", ppct(len(react_then_post), len(members)))
+pmem("Members that post then react:", members, post_then_react)
+pmem("Members that react then post:", members, react_then_post)
 
-print("")
-print("Members that post then comment:", ppct(len(post_then_comment), len(members)))
-print("Members that comment then post:", ppct(len(comment_then_post), len(members)))
+pmem("Members that post then comment:", members, post_then_comment)
+pmem("Members that comment then post:", members, comment_then_post)
 
-print("")
-print("Members that react then comment:", ppct(len(react_then_comment), len(members)))
-print("Members that comment then react:", ppct(len(comment_then_react), len(members)))
+pmem("Members that react then comment:", members, react_then_comment)
+pmem("Members that comment then react:", members, comment_then_react)
